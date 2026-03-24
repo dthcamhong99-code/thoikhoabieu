@@ -1,0 +1,5 @@
+{
+  "name": "Weekly Schedule Planner",
+  "description": "A weekly schedule and timetable app that allows you to input tasks by hour and day, and export the schedule as an image or PDF.",
+  "requestFramePermissions": []
+}

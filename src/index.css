@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Quicksand", ui-sans-serif, system-ui, sans-serif;
+  --font-cute: "Pacifico", cursive;
+}
+
+body {
+  background-color: #fff0f5; /* Lavender blush */
+  background-image: radial-gradient(#ffd1dc 2px, transparent 2px);
+  background-size: 30px 30px;
+}
+
+/* Custom scrollbar for cuteness */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #fff0f5;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ffb6c1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff69b4;
+}
