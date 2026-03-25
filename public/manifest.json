@@ -1,0 +1,17 @@
+{
+  "name": "Thời Khóa Biểu Tuần",
+  "short_name": "TKB",
+  "description": "Thời khóa biểu cá nhân hàng tuần",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdf2f8",
+  "theme_color": "#fbcfe8",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
