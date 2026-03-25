@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Heart } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Task, COLORS } from '../types';
+import { Task, COLORS, HOURS } from '../types';
 import { cn } from '../lib/utils';
 
 interface TaskModalProps {
@@ -15,6 +15,17 @@ interface TaskModalProps {
   selectedHour?: number;
   weekDates: Date[];
 }
+
+const COMMON_TASKS = [
+  'Đi trực',
+  'Về quê',
+  'Du lịch',
+  'Đi học BK',
+  'Đi làm thêm',
+  'Đi thiện nguyện',
+  'Thả cá',
+  'Đi siêu thị'
+];
 
 export function TaskModal({
   isOpen,
@@ -31,6 +42,7 @@ export function TaskModal({
   const [color, setColor] = useState(COLORS[0]);
   const [dateStr, setDateStr] = useState(selectedDate || format(new Date(), 'yyyy-MM-dd'));
   const [hour, setHour] = useState(selectedHour ?? 6);
+  const [endHour, setEndHour] = useState(initialData?.endHour || (selectedHour ?? 6) + 1);
 
   useEffect(() => {
     if (initialData) {
@@ -39,14 +51,23 @@ export function TaskModal({
       setColor(initialData.color);
       setDateStr(initialData.date);
       setHour(initialData.hour);
+      setEndHour(initialData.endHour || initialData.hour + 1);
     } else {
       setTitle('');
       setDescription('');
       setColor(COLORS[Math.floor(Math.random() * COLORS.length)]);
       setDateStr(selectedDate || format(new Date(), 'yyyy-MM-dd'));
       setHour(selectedHour ?? 6);
+      setEndHour((selectedHour ?? 6) + 1);
     }
   }, [initialData, selectedDate, selectedHour, isOpen]);
+
+  const handleHourChange = (newHour: number) => {
+    setHour(newHour);
+    if (endHour <= newHour) {
+      setEndHour(newHour + 1);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -59,6 +80,7 @@ export function TaskModal({
       color,
       date: dateStr,
       hour,
+      endHour,
     });
     onClose();
   };
@@ -93,6 +115,23 @@ export function TaskModal({
               autoFocus
               required
             />
+            <div className="mt-3 flex flex-wrap gap-2">
+              {COMMON_TASKS.map((taskName) => (
+                <button
+                  key={taskName}
+                  type="button"
+                  onClick={() => setTitle(taskName)}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-semibold rounded-full transition-colors border",
+                    title === taskName 
+                      ? "bg-pink-500 text-white border-pink-500 shadow-sm" 
+                      : "bg-pink-50 text-pink-600 hover:bg-pink-100 border-pink-100"
+                  )}
+                >
+                  {taskName}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div>
@@ -108,7 +147,7 @@ export function TaskModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">
                 Ngày 📅
@@ -127,16 +166,32 @@ export function TaskModal({
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                Giờ ⏰
+                Từ giờ ⏰
               </label>
               <select
                 value={hour}
-                onChange={(e) => setHour(Number(e.target.value))}
+                onChange={(e) => handleHourChange(Number(e.target.value))}
                 className="w-full px-4 py-2.5 bg-slate-50 border-2 border-pink-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-300 transition-all font-medium text-slate-700 appearance-none cursor-pointer"
               >
-                {Array.from({ length: 24 }, (_, i) => (
-                  <option key={i} value={i}>
-                    {i.toString().padStart(2, '0')}:00
+                {HOURS.map((h) => (
+                  <option key={h} value={h}>
+                    {h.toString().padStart(2, '0')}:00
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                Đến giờ ⏳
+              </label>
+              <select
+                value={endHour}
+                onChange={(e) => setEndHour(Number(e.target.value))}
+                className="w-full px-4 py-2.5 bg-slate-50 border-2 border-pink-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-300 transition-all font-medium text-slate-700 appearance-none cursor-pointer"
+              >
+                {Array.from({ length: 24 - hour }, (_, i) => hour + i + 1).map((h) => (
+                  <option key={h} value={h}>
+                    {h.toString().padStart(2, '0')}:00
                   </option>
                 ))}
               </select>

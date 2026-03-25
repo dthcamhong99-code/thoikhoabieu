@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CalendarHeart, Download, Image as ImageIcon, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { toPng } from 'html-to-image';
+import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { startOfWeek, addDays, format, subWeeks, addWeeks } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -72,9 +72,9 @@ export default function App() {
   const exportAsImage = async () => {
     if (!scheduleRef.current) return;
     try {
-      const dataUrl = await toPng(scheduleRef.current, { 
-        quality: 1, 
-        pixelRatio: 2,
+      const dataUrl = await toJpeg(scheduleRef.current, { 
+        quality: 0.85, 
+        pixelRatio: 1.5,
         backgroundColor: '#ffffff',
         style: {
           transform: 'scale(1)',
@@ -82,7 +82,7 @@ export default function App() {
         }
       });
       const link = document.createElement('a');
-      link.download = `thoi-khoa-bieu-${format(weekStart, 'dd-MM-yyyy')}.png`;
+      link.download = `thoi-khoa-bieu-${format(weekStart, 'dd-MM-yyyy')}.jpg`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
@@ -94,9 +94,9 @@ export default function App() {
   const exportAsPDF = async () => {
     if (!scheduleRef.current) return;
     try {
-      const dataUrl = await toPng(scheduleRef.current, { 
-        quality: 1, 
-        pixelRatio: 2,
+      const dataUrl = await toJpeg(scheduleRef.current, { 
+        quality: 0.85, 
+        pixelRatio: 1.5,
         backgroundColor: '#ffffff',
         style: {
           transform: 'scale(1)',
@@ -110,10 +110,11 @@ export default function App() {
       const pdf = new jsPDF({
         orientation: width > height ? 'landscape' : 'portrait',
         unit: 'px',
-        format: [width, height]
+        format: [width, height],
+        compress: true
       });
       
-      pdf.addImage(dataUrl, 'PNG', 0, 0, width, height);
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height, undefined, 'FAST');
       pdf.save(`thoi-khoa-bieu-${format(weekStart, 'dd-MM-yyyy')}.pdf`);
     } catch (error) {
       console.error('Error exporting PDF:', error);
@@ -124,7 +125,7 @@ export default function App() {
   return (
     <div className="min-h-screen text-slate-800 font-sans pb-12">
       <header className="bg-white/80 backdrop-blur-md border-b border-pink-100 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-pink-100 text-pink-500 rounded-2xl shadow-inner">
               <CalendarHeart size={26} />
@@ -144,7 +145,7 @@ export default function App() {
             <button
               onClick={exportAsImage}
               className="flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-pink-100 text-pink-600 rounded-full hover:bg-pink-50 hover:border-pink-200 transition-all shadow-sm font-semibold"
-              title="Xuất file ảnh (PNG)"
+              title="Xuất file ảnh (JPG)"
             >
               <ImageIcon size={18} />
               <span className="hidden sm:inline">Ảnh</span>
@@ -161,7 +162,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-slate-500 font-medium">
             ✨ Nhấn vào ô trống để thêm việc, hoặc nhấn vào việc đã có để sửa nhé!
@@ -196,7 +197,7 @@ export default function App() {
           {/* Wrap the grid in a div that we will capture for export */}
           <div 
             ref={scheduleRef} 
-            className="bg-white p-6 rounded-[2rem] shadow-xl shadow-pink-100/50 border-4 border-white min-w-[800px]"
+            className="bg-white p-6 rounded-[2rem] shadow-xl shadow-pink-100/50 border-4 border-white min-w-[1200px]"
           >
             <div className="mb-6 text-center">
               <h2 className="text-4xl text-pink-500 font-cute mb-2">

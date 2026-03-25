@@ -23,7 +23,7 @@ export function ScheduleGrid({ tasks, weekDates, onCellClick, onTaskClick }: Sch
     <div className="w-full bg-white rounded-3xl shadow-sm border-2 border-pink-100 overflow-hidden">
       <div className="w-full">
         {/* Header Row */}
-        <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b-2 border-pink-100 bg-pink-50/50 sticky top-0 z-10">
+        <div className="grid grid-cols-[100px_repeat(7,1fr)] border-b-2 border-pink-100 bg-pink-50/50 sticky top-0 z-10">
           <div className="p-3 text-center text-sm font-bold text-pink-400 border-r-2 border-pink-100 flex items-center justify-center">
             Giờ ⏰
           </div>
@@ -60,7 +60,11 @@ export function ScheduleGrid({ tasks, weekDates, onCellClick, onTaskClick }: Sch
         {/* Grid Body */}
         <div className="divide-y-2 divide-pink-50">
           {HOURS.map((hour) => (
-            <div key={hour} className="grid grid-cols-[80px_repeat(7,1fr)] group">
+            <div 
+              key={hour} 
+              className="grid grid-cols-[100px_repeat(7,1fr)] group h-[60px] relative"
+              style={{ zIndex: 50 - hour }}
+            >
               {/* Time Column */}
               <div className="p-2 text-center text-xs font-bold text-pink-400 border-r-2 border-pink-100 bg-pink-50/30 flex items-center justify-center">
                 {hour.toString().padStart(2, '0')}:00
@@ -77,33 +81,45 @@ export function ScheduleGrid({ tasks, weekDates, onCellClick, onTaskClick }: Sch
                     key={`${dateStr}-${hour}`}
                     onClick={() => onCellClick(dateStr, hour)}
                     className={cn(
-                      "relative min-h-[85px] p-1.5 border-r-2 border-pink-50 last:border-r-0 hover:bg-pink-50/50 cursor-pointer transition-colors border-dashed",
+                      "relative p-1.5 border-r-2 border-pink-50 last:border-r-0 hover:bg-pink-50/50 cursor-pointer transition-colors border-dashed",
                       isCurrentDay ? "bg-pink-50/30" : ""
                     )}
                   >
-                    <div className="flex flex-col gap-1.5 h-full">
-                      {slotTasks.map((task) => (
+                    {slotTasks.map((task, idx) => {
+                      const duration = Math.max(1, (task.endHour || task.hour + 1) - task.hour);
+                      return (
                         <div
                           key={task.id}
                           onClick={(e) => {
                             e.stopPropagation();
                             onTaskClick(task);
                           }}
+                          style={{
+                            position: 'absolute',
+                            top: `${4 + idx * 6}px`,
+                            left: `${4 + idx * 6}px`,
+                            right: '4px',
+                            height: `calc(${duration * 100}% + ${(duration - 1) * 2}px - ${8 + idx * 6}px)`,
+                            zIndex: 10 + idx
+                          }}
                           className={cn(
-                            "p-2 rounded-xl border-2 shadow-sm transition-all hover:scale-[1.03] hover:-rotate-1 cursor-pointer overflow-hidden",
+                            "p-1.5 rounded-xl border-2 shadow-sm transition-all hover:scale-[1.02] cursor-pointer overflow-hidden flex flex-col",
                             task.color
                           )}
                           title={task.description}
                         >
                           <div className="font-bold truncate text-xs leading-tight">{task.title}</div>
+                          <div className="text-[10px] font-semibold opacity-90 mt-0.5">
+                            {task.hour.toString().padStart(2, '0')}:00 - {(task.endHour || task.hour + 1).toString().padStart(2, '0')}:00
+                          </div>
                           {task.description && (
                             <div className="truncate opacity-80 mt-1 text-[10px] font-medium">
                               {task.description}
                             </div>
                           )}
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 );
               })}

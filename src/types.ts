@@ -2,6 +2,7 @@ export type Task = {
   id: string;
   date: string; // 'YYYY-MM-DD'
   hour: number; // 0 to 23
+  endHour?: number; // 0 to 24
   title: string;
   description?: string;
   color: string;
