@@ -2,11 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CalendarHeart, Download, Image as ImageIcon, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
-import { startOfWeek, addDays, format, subWeeks, addWeeks } from 'date-fns';
+import { startOfWeek, addDays, format, subWeeks, addWeeks, subMonths, addMonths } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Task } from './types';
 import { ScheduleGrid } from './components/ScheduleGrid';
+import { MonthGrid } from './components/MonthGrid';
 import { TaskModal } from './components/TaskModal';
+import { cn } from './lib/utils';
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -23,6 +25,7 @@ export default function App() {
   });
   
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'week' | 'month'>('week');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ date: string; hour: number } | null>(null);
@@ -35,8 +38,16 @@ export default function App() {
     localStorage.setItem('weekly-schedule-tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const handlePrevWeek = () => setCurrentDate(subWeeks(currentDate, 1));
-  const handleNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
+  const handlePrev = () => {
+    if (viewMode === 'week') setCurrentDate(subWeeks(currentDate, 1));
+    else setCurrentDate(subMonths(currentDate, 1));
+  };
+  
+  const handleNext = () => {
+    if (viewMode === 'week') setCurrentDate(addWeeks(currentDate, 1));
+    else setCurrentDate(addMonths(currentDate, 1));
+  };
+  
   const handleToday = () => setCurrentDate(new Date());
 
   const handleAddClick = () => {
@@ -168,28 +179,53 @@ export default function App() {
             ✨ Nhấn vào ô trống để thêm việc, hoặc nhấn vào việc đã có để sửa nhé!
           </p>
           
-          <div className="flex items-center gap-1 bg-white p-1.5 rounded-full border-2 border-pink-100 shadow-sm">
-            <button
-              onClick={handlePrevWeek}
-              className="p-2 hover:bg-pink-50 text-pink-400 hover:text-pink-600 rounded-full transition-colors"
-              title="Tuần trước"
-            >
-              <ChevronLeft size={20} strokeWidth={2.5} />
-            </button>
-            <button
-              onClick={handleToday}
-              className="px-4 py-1.5 text-sm font-bold text-pink-500 hover:bg-pink-50 rounded-full transition-colors"
-              title="Trở về tuần hiện tại"
-            >
-              {format(weekDates[0], 'dd/MM')} - {format(weekDates[6], 'dd/MM')}
-            </button>
-            <button
-              onClick={handleNextWeek}
-              className="p-2 hover:bg-pink-50 text-pink-400 hover:text-pink-600 rounded-full transition-colors"
-              title="Tuần sau"
-            >
-              <ChevronRight size={20} strokeWidth={2.5} />
-            </button>
+          <div className="flex items-center gap-4">
+            <div className="flex bg-white p-1 rounded-full border-2 border-pink-100 shadow-sm">
+              <button
+                onClick={() => setViewMode('week')}
+                className={cn(
+                  "px-4 py-1.5 text-sm font-bold rounded-full transition-colors",
+                  viewMode === 'week' ? "bg-pink-100 text-pink-600" : "text-slate-500 hover:text-pink-500"
+                )}
+              >
+                Tuần
+              </button>
+              <button
+                onClick={() => setViewMode('month')}
+                className={cn(
+                  "px-4 py-1.5 text-sm font-bold rounded-full transition-colors",
+                  viewMode === 'month' ? "bg-pink-100 text-pink-600" : "text-slate-500 hover:text-pink-500"
+                )}
+              >
+                Tháng
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1 bg-white p-1.5 rounded-full border-2 border-pink-100 shadow-sm">
+              <button
+                onClick={handlePrev}
+                className="p-2 hover:bg-pink-50 text-pink-400 hover:text-pink-600 rounded-full transition-colors"
+                title={viewMode === 'week' ? "Tuần trước" : "Tháng trước"}
+              >
+                <ChevronLeft size={20} strokeWidth={2.5} />
+              </button>
+              <button
+                onClick={handleToday}
+                className="px-4 py-1.5 text-sm font-bold text-pink-500 hover:bg-pink-50 rounded-full transition-colors"
+                title="Trở về hiện tại"
+              >
+                {viewMode === 'week' 
+                  ? `${format(weekDates[0], 'dd/MM')} - ${format(weekDates[6], 'dd/MM')}`
+                  : `Tháng ${format(currentDate, 'M/yyyy')}`}
+              </button>
+              <button
+                onClick={handleNext}
+                className="p-2 hover:bg-pink-50 text-pink-400 hover:text-pink-600 rounded-full transition-colors"
+                title={viewMode === 'week' ? "Tuần sau" : "Tháng sau"}
+              >
+                <ChevronRight size={20} strokeWidth={2.5} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -201,19 +237,30 @@ export default function App() {
           >
             <div className="mb-6 text-center">
               <h2 className="text-4xl text-pink-500 font-cute mb-2">
-                Kế Hoạch Tuần ✨
+                Kế Hoạch {viewMode === 'week' ? 'Tuần' : 'Tháng'} ✨
               </h2>
               <p className="text-pink-400 font-medium mt-1 bg-pink-50 inline-block px-4 py-1 rounded-full border border-pink-100">
-                {format(weekDates[0], 'dd/MM/yyyy')} - {format(weekDates[6], 'dd/MM/yyyy')}
+                {viewMode === 'week' 
+                  ? `${format(weekDates[0], 'dd/MM/yyyy')} - ${format(weekDates[6], 'dd/MM/yyyy')}`
+                  : `Tháng ${format(currentDate, 'M - yyyy')}`}
               </p>
             </div>
             
-            <ScheduleGrid 
-              tasks={tasks} 
-              weekDates={weekDates}
-              onCellClick={handleCellClick} 
-              onTaskClick={handleTaskClick} 
-            />
+            {viewMode === 'week' ? (
+              <ScheduleGrid 
+                tasks={tasks} 
+                weekDates={weekDates}
+                onCellClick={handleCellClick} 
+                onTaskClick={handleTaskClick} 
+              />
+            ) : (
+              <MonthGrid
+                currentDate={currentDate}
+                tasks={tasks}
+                onCellClick={handleCellClick}
+                onTaskClick={handleTaskClick}
+              />
+            )}
           </div>
         </div>
       </main>
