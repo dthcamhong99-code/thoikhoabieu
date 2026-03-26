@@ -62,7 +62,7 @@ export function ScheduleGrid({ tasks, weekDates, onCellClick, onTaskClick }: Sch
           {HOURS.map((hour) => (
             <div 
               key={hour} 
-              className="grid grid-cols-[100px_repeat(7,1fr)] group h-[60px] relative"
+              className="grid grid-cols-[100px_repeat(7,1fr)] group h-[42px] relative"
               style={{ zIndex: 50 - hour }}
             >
               {/* Time Column */}
@@ -96,24 +96,24 @@ export function ScheduleGrid({ tasks, weekDates, onCellClick, onTaskClick }: Sch
                           }}
                           style={{
                             position: 'absolute',
-                            top: `${4 + idx * 6}px`,
-                            left: `${4 + idx * 6}px`,
-                            right: '4px',
-                            height: `calc(${duration * 100}% + ${(duration - 1) * 2}px - ${8 + idx * 6}px)`,
+                            top: `${2 + idx * 4}px`,
+                            left: `${2 + idx * 4}px`,
+                            right: '2px',
+                            height: `calc(${duration * 100}% + ${(duration - 1) * 2}px - ${4 + idx * 4}px)`,
                             zIndex: 10 + idx
                           }}
                           className={cn(
-                            "p-1.5 rounded-xl border-2 shadow-sm transition-all hover:scale-[1.02] cursor-pointer overflow-hidden flex flex-col",
+                            "py-1 px-1.5 rounded-lg border-2 shadow-sm transition-all hover:scale-[1.02] cursor-pointer overflow-hidden flex flex-col",
                             task.color
                           )}
                           title={task.description}
                         >
-                          <div className="font-bold truncate text-xs leading-tight">{task.title}</div>
-                          <div className="text-[10px] font-semibold opacity-90 mt-0.5">
+                          <div className="font-bold truncate text-[11px] leading-tight">{task.title}</div>
+                          <div className="text-[9px] font-semibold opacity-90 mt-0.5">
                             {task.hour.toString().padStart(2, '0')}:00 - {(task.endHour || task.hour + 1).toString().padStart(2, '0')}:00
                           </div>
-                          {task.description && (
-                            <div className="truncate opacity-80 mt-1 text-[10px] font-medium">
+                          {task.description && duration > 1 && (
+                            <div className="truncate opacity-80 mt-0.5 text-[9px] font-medium">
                               {task.description}
                             </div>
                           )}

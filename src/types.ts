@@ -37,4 +37,4 @@ export const DAYS = [
   'Chủ nhật',
 ];
 
-export const HOURS = Array.from({ length: 18 }, (_, i) => i + 6); // 6:00 to 23:00
+export const HOURS = Array.from({ length: 24 }, (_, i) => i); // 0:00 to 23:00

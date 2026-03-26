@@ -8,6 +8,7 @@ import { Task } from './types';
 import { ScheduleGrid } from './components/ScheduleGrid';
 import { MonthGrid } from './components/MonthGrid';
 import { TaskModal } from './components/TaskModal';
+import { DailySummaryModal } from './components/DailySummaryModal';
 import { cn } from './lib/utils';
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ date: string; hour: number } | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
   const scheduleRef = useRef<HTMLDivElement>(null);
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Monday
@@ -36,6 +38,18 @@ export default function App() {
 
   useEffect(() => {
     localStorage.setItem('weekly-schedule-tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(() => {
+    // Show summary modal on initial load if there are tasks today
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const hasTasksToday = tasks.some(t => t.date === todayStr);
+    const hasShownSummary = sessionStorage.getItem('hasShownSummary');
+    
+    if (hasTasksToday && !hasShownSummary) {
+      setShowSummary(true);
+      sessionStorage.setItem('hasShownSummary', 'true');
+    }
   }, [tasks]);
 
   const handlePrev = () => {
@@ -274,6 +288,12 @@ export default function App() {
         selectedDate={selectedSlot?.date}
         selectedHour={selectedSlot?.hour}
         weekDates={weekDates}
+      />
+
+      <DailySummaryModal
+        isOpen={showSummary}
+        onClose={() => setShowSummary(false)}
+        tasks={tasks}
       />
     </div>
   );
