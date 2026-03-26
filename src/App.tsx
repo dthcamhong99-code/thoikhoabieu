@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CalendarHeart, Download, Image as ImageIcon, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarHeart, Download, Image as ImageIcon, Plus, ChevronLeft, ChevronRight, Bell, BellRing } from 'lucide-react';
 import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { startOfWeek, addDays, format, subWeeks, addWeeks, subMonths, addMonths } from 'date-fns';
@@ -31,6 +31,7 @@ export default function App() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ date: string; hour: number } | null>(null);
   const [showSummary, setShowSummary] = useState(false);
+  const [notifyPermission, setNotifyPermission] = useState<NotificationPermission>('default');
   const scheduleRef = useRef<HTMLDivElement>(null);
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Monday
@@ -41,16 +42,77 @@ export default function App() {
   }, [tasks]);
 
   useEffect(() => {
-    // Show summary modal on initial load if there are tasks today
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
-    const hasTasksToday = tasks.some(t => t.date === todayStr);
-    const hasShownSummary = sessionStorage.getItem('hasShownSummary');
-    
-    if (hasTasksToday && !hasShownSummary) {
-      setShowSummary(true);
-      sessionStorage.setItem('hasShownSummary', 'true');
+    if ('Notification' in window) {
+      setNotifyPermission(Notification.permission);
     }
-  }, [tasks]);
+  }, []);
+
+  useEffect(() => {
+    const checkPeriodicTasks = () => {
+      const now = new Date();
+      const todayStr = format(now, 'yyyy-MM-dd');
+
+      // 1. Daily Summary Check (Shows once per day)
+      const lastShownDate = localStorage.getItem('lastShownSummaryDate');
+      if (lastShownDate !== todayStr) {
+        const hasTasksToday = tasks.some(t => t.date === todayStr);
+        if (hasTasksToday) {
+          setShowSummary(true);
+          localStorage.setItem('lastShownSummaryDate', todayStr);
+        }
+      }
+
+      // 2. Notification Check
+      if (notifyPermission === 'granted') {
+        const todayTasks = tasks.filter(t => t.date === todayStr);
+        const notifiedKey = `notified-${todayStr}`;
+        const notifiedTasks: string[] = JSON.parse(localStorage.getItem(notifiedKey) || '[]');
+        let newlyNotified = false;
+
+        todayTasks.forEach(task => {
+          if (notifiedTasks.includes(task.id)) return;
+
+          const taskTime = new Date(now);
+          taskTime.setHours(task.hour, 0, 0, 0);
+          
+          const diffMins = Math.floor((taskTime.getTime() - now.getTime()) / 60000);
+          
+          // Notify if task is starting in 60 minutes or less (down to 0 mins)
+          if (diffMins > 0 && diffMins <= 60) {
+            new Notification('⏰ Nhắc nhở công việc!', {
+              body: `"${task.title}" sẽ bắt đầu lúc ${task.hour.toString().padStart(2, '0')}:00.`,
+              icon: '/vite.svg'
+            });
+            notifiedTasks.push(task.id);
+            newlyNotified = true;
+          }
+        });
+
+        if (newlyNotified) {
+          localStorage.setItem(notifiedKey, JSON.stringify(notifiedTasks));
+        }
+      }
+    };
+
+    // Check immediately, then every minute
+    checkPeriodicTasks();
+    const interval = setInterval(checkPeriodicTasks, 60000);
+    return () => clearInterval(interval);
+  }, [tasks, notifyPermission]);
+
+  const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) {
+      alert('Trình duyệt hoặc thiết bị của bạn không hỗ trợ thông báo.');
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    setNotifyPermission(permission);
+    if (permission === 'granted') {
+      alert('Đã bật thông báo thành công! Bạn sẽ nhận được nhắc nhở trước 1 tiếng.');
+    } else {
+      alert('Bạn đã từ chối cấp quyền thông báo. Vui lòng cấp quyền trong cài đặt trình duyệt để nhận nhắc nhở.');
+    }
+  };
 
   const handlePrev = () => {
     if (viewMode === 'week') setCurrentDate(subWeeks(currentDate, 1));
@@ -159,6 +221,20 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-3">
+            <button
+              onClick={requestNotificationPermission}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 border-2 rounded-full transition-all shadow-sm font-semibold",
+                notifyPermission === 'granted' 
+                  ? "bg-pink-50 border-pink-200 text-pink-600 hover:bg-pink-100" 
+                  : "bg-white border-pink-100 text-slate-500 hover:bg-slate-50"
+              )}
+              title="Bật thông báo nhắc nhở"
+            >
+              {notifyPermission === 'granted' ? <BellRing size={18} /> : <Bell size={18} />}
+              <span className="hidden sm:inline">Nhắc nhở</span>
+            </button>
+            <div className="h-8 w-px bg-pink-100 mx-1 hidden sm:block"></div>
             <button
               onClick={handleAddClick}
               className="flex items-center gap-2 px-5 py-2.5 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 font-semibold"
