@@ -20,11 +20,11 @@ export function ScheduleGrid({ tasks, weekDates, onCellClick, onTaskClick }: Sch
   };
 
   return (
-    <div className="w-full bg-white rounded-3xl shadow-sm border-2 border-pink-100 overflow-hidden">
+    <div className="w-full bg-white rounded-3xl shadow-sm border-2 border-pink-100">
       <div className="w-full">
         {/* Header Row */}
-        <div className="grid grid-cols-[100px_repeat(7,1fr)] border-b-2 border-pink-100 bg-pink-50/50 sticky top-0 z-10">
-          <div className="p-3 text-center text-sm font-bold text-pink-400 border-r-2 border-pink-100 flex items-center justify-center">
+        <div className="grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[100px_repeat(7,1fr)] border-b-2 border-pink-100 bg-pink-50/90 backdrop-blur-md sticky top-0 z-[60] rounded-t-3xl shadow-sm">
+          <div className="p-2 sm:p-3 text-center text-xs sm:text-sm font-bold text-pink-500 border-r-2 border-pink-100 flex items-center justify-center sticky left-0 bg-pink-100/90 backdrop-blur-md z-[70] rounded-tl-3xl shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
             Giờ ⏰
           </div>
           {weekDates.map((date, index) => {
@@ -59,14 +59,17 @@ export function ScheduleGrid({ tasks, weekDates, onCellClick, onTaskClick }: Sch
 
         {/* Grid Body */}
         <div className="divide-y-2 divide-pink-50">
-          {HOURS.map((hour) => (
+          {HOURS.map((hour, idx) => (
             <div 
               key={hour} 
-              className="grid grid-cols-[100px_repeat(7,1fr)] group h-[42px] relative"
+              className="grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[100px_repeat(7,1fr)] group h-[42px] relative"
               style={{ zIndex: 50 - hour }}
             >
               {/* Time Column */}
-              <div className="p-2 text-center text-xs font-bold text-pink-400 border-r-2 border-pink-100 bg-pink-50/30 flex items-center justify-center">
+              <div className={cn(
+                "p-1 sm:p-2 text-center text-[10px] sm:text-xs font-bold text-pink-500 border-r-2 border-pink-100 bg-pink-50/95 backdrop-blur-md flex items-center justify-center sticky left-0 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]",
+                idx === HOURS.length - 1 ? "rounded-bl-3xl" : ""
+              )}>
                 {hour.toString().padStart(2, '0')}:00
               </div>
 

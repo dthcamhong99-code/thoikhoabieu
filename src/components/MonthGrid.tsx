@@ -25,7 +25,7 @@ export function MonthGrid({ currentDate, tasks, onCellClick, onTaskClick }: Mont
   return (
     <div className="bg-white rounded-3xl border-4 border-pink-100 overflow-hidden shadow-sm">
       {/* Header Row */}
-      <div className="grid grid-cols-7 bg-pink-50/50 border-b-2 border-pink-100">
+      <div className="grid grid-cols-7 bg-pink-50/90 backdrop-blur-md border-b-2 border-pink-100 sticky top-0 z-[60] shadow-sm">
         {DAYS_OF_WEEK.map((day) => (
           <div key={day} className="py-3 text-center font-bold text-pink-500 text-sm">
             {day}

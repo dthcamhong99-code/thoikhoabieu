@@ -86,7 +86,7 @@ export function TaskModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-pink-900/20 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-pink-900/20 backdrop-blur-sm p-4">
       <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden border-4 border-pink-50">
         <div className="flex items-center justify-between p-5 border-b-2 border-pink-50 bg-pink-50/30">
           <h2 className="text-xl font-bold text-pink-500 flex items-center gap-2">

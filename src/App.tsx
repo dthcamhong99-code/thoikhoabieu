@@ -319,11 +319,11 @@ export default function App() {
           </div>
         </div>
 
-        <div className="overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="overflow-auto max-h-[70vh] md:max-h-[calc(100vh-240px)] pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 custom-scrollbar">
           {/* Wrap the grid in a div that we will capture for export */}
           <div 
             ref={scheduleRef} 
-            className="bg-white p-6 rounded-[2rem] shadow-xl shadow-pink-100/50 border-4 border-white min-w-[1200px]"
+            className="bg-white p-4 sm:p-6 rounded-[2rem] shadow-xl shadow-pink-100/50 border-4 border-white min-w-[600px] md:min-w-[800px] lg:min-w-[1200px]"
           >
             <div className="mb-6 text-center">
               <h2 className="text-4xl text-pink-500 font-cute mb-2">

@@ -26,7 +26,7 @@ export function DailySummaryModal({ isOpen, onClose, tasks }: DailySummaryModalP
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-pink-900/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-pink-900/40 backdrop-blur-sm p-4">
       <div className="w-full max-w-sm bg-white rounded-[2rem] shadow-2xl overflow-hidden border-4 border-pink-100 transform transition-all">
         <div className="bg-gradient-to-b from-pink-100 to-white p-6 text-center relative">
           <button
