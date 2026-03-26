@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CalendarHeart, Download, Image as ImageIcon, Plus, ChevronLeft, ChevronRight, Bell, BellRing } from 'lucide-react';
+import { CalendarHeart, Download, Image as ImageIcon, Plus, ChevronLeft, ChevronRight, Bell, BellRing, ListTodo } from 'lucide-react';
 import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { startOfWeek, addDays, format, subWeeks, addWeeks, subMonths, addMonths } from 'date-fns';
@@ -221,6 +221,15 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSummary(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-pink-100 text-pink-500 rounded-full hover:bg-pink-50 hover:border-pink-200 transition-all shadow-sm font-semibold"
+              title="Tóm tắt công việc hôm nay"
+            >
+              <ListTodo size={18} />
+              <span className="hidden sm:inline">Tóm tắt</span>
+            </button>
+            <div className="h-8 w-px bg-pink-100 mx-1 hidden sm:block"></div>
             <button
               onClick={requestNotificationPermission}
               className={cn(

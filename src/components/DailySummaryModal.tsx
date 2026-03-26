@@ -19,12 +19,6 @@ export function DailySummaryModal({ isOpen, onClose, tasks }: DailySummaryModalP
     .filter((t) => t.date === todayStr)
     .sort((a, b) => a.hour - b.hour);
 
-  if (todayTasks.length === 0) {
-    // If no tasks today, we can just return null or show a "no tasks" message.
-    // But usually we wouldn't even open the modal if there are no tasks.
-    return null;
-  }
-
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-pink-900/40 backdrop-blur-sm p-4">
       <div className="w-full max-w-sm bg-white rounded-[2rem] shadow-2xl overflow-hidden border-4 border-pink-100 transform transition-all">
@@ -45,31 +39,37 @@ export function DailySummaryModal({ isOpen, onClose, tasks }: DailySummaryModalP
         </div>
 
         <div className="p-5 max-h-[50vh] overflow-y-auto">
-          <div className="space-y-3">
-            {todayTasks.map((task) => (
-              <div 
-                key={task.id} 
-                className={cn(
-                  "p-3 rounded-2xl border-2 flex gap-3 items-start",
-                  task.color || "bg-pink-50 border-pink-100 text-pink-700"
-                )}
-              >
-                <div className="bg-white/60 px-2 py-1 rounded-lg flex flex-col items-center justify-center min-w-[50px] border border-white/50 shadow-sm">
-                  <span className="text-xs font-bold opacity-80">
-                    {task.hour.toString().padStart(2, '0')}:00
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-sm leading-tight mb-0.5">{task.title}</h3>
-                  {task.description && (
-                    <p className="text-xs font-medium opacity-80 line-clamp-2">
-                      {task.description}
-                    </p>
+          {todayTasks.length === 0 ? (
+            <div className="text-center py-6 text-slate-500 font-medium">
+              Bạn chưa có công việc nào cho hôm nay. <br/> Hãy tận hưởng ngày mới nhé! 🌸
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {todayTasks.map((task) => (
+                <div 
+                  key={task.id} 
+                  className={cn(
+                    "p-3 rounded-2xl border-2 flex gap-3 items-start",
+                    task.color || "bg-pink-50 border-pink-100 text-pink-700"
                   )}
+                >
+                  <div className="bg-white/60 px-2 py-1 rounded-lg flex flex-col items-center justify-center min-w-[50px] border border-white/50 shadow-sm">
+                    <span className="text-xs font-bold opacity-80">
+                      {task.hour.toString().padStart(2, '0')}:00
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-sm leading-tight mb-0.5">{task.title}</h3>
+                    {task.description && (
+                      <p className="text-xs font-medium opacity-80 line-clamp-2">
+                        {task.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="p-5 border-t-2 border-pink-50 bg-slate-50/50">
@@ -77,7 +77,7 @@ export function DailySummaryModal({ isOpen, onClose, tasks }: DailySummaryModalP
             onClick={onClose}
             className="w-full py-3 bg-pink-400 text-white rounded-2xl hover:bg-pink-500 transition-all shadow-md hover:shadow-lg font-bold text-lg flex items-center justify-center gap-2"
           >
-            Bắt đầu ngày mới ✨
+            {todayTasks.length === 0 ? "Đóng" : "Bắt đầu ngày mới ✨"}
           </button>
         </div>
       </div>
